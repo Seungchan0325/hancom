@@ -42,7 +42,7 @@ void update(int x, int v, int s = 1, int e = N, int idx = 1)
     }
 
     int m = (s + e) / 2;
-    update(x, v, s, m, 2*idx);
+    update(x, v, s, m, 2*idx);   adfdsaf
     update(x, v, m+1, e, 2*idx+1);
     tree[idx] = merge(tree[2*idx], tree[2*idx+1]);
 }
