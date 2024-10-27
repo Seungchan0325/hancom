@@ -34,6 +34,7 @@ void update(int x, T v, int s = 1, int e = N, int idx = 1)
 
 T query(int l, int r, int s = 1, int e = N, int idx = 1)
 {
+    if(r < l) return {-1, -1, -1};
     if(l <= s && e <= r) return tree[idx];
 
     int m = (s + e) / 2;
