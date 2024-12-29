@@ -1,3 +1,7 @@
+// #pragma GCC optimize("O3")
+#pragma GCC optimize("Ofast")
+#pragma GCC optimize("unroll-loops")
+
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -5,33 +9,26 @@ using namespace std;
 const int MAXN = 1505;
 const int INF = 1e9;
 
-struct SegTree {
-    int n;
-    vector<int> tree;
-
-    SegTree(int n) : n(n), tree(2*n, -INF) {}
+struct st {
+    vector<pair<int, int>> s;
 
     void upd(int x, int v)
     {
-        x--;
-        for(tree[x+=n] = v; x > 1; x>>=1) tree[x>>1] = max(tree[x], tree[x^1]);
+        s.emplace_back(v, x);
+        sort(s.begin(), s.end(), greater<>());
+        if(s.size() > 4) s.pop_back();
     }
-    int qry(int l, int r)
+    int qry(int i, int j, int k)
     {
-        if(r < 1) return -INF;
-        if(n < l) return -INF;
-        if(r < l) return -INF;
-        l--, r--;
-        int res = -INF;
-        for(l+=n, r+=n; l <= r; l>>=1, r>>=1) {
-            if(l&1) res = max(tree[l++], res);
-            if(~r&1) res  = max(tree[r--], res);
+        for(auto [v, x] : s) {
+            if(x != i && x != j && x != k) return v;
         }
-        return res;
+        return -INF;
     }
 };
 
 int N, R, C, A[MAXN][MAXN], DP[MAXN][MAXN];
+st hor[MAXN], ver[MAXN];
 
 int main()
 {
@@ -39,6 +36,7 @@ int main()
 
     cin >> N >> R >> C;
     vector<int> v;
+    v.reserve(N*N);
     for(int i = 1; i <= N; i++) {
         for(int j = 1; j <= N; j++) {
             cin >> A[i][j];
@@ -57,16 +55,14 @@ int main()
         }
     }
 
-    vector<SegTree> hor(N+2, SegTree(N)), ver(N+2, SegTree(N));
-
     int ans = 1;
     for(int k = 0; k < s.size(); k++) {
         for(auto [i, j] : s[k]) {
             DP[i][j] = 1 + max({
-                hor[i+1].qry(1, j-2), hor[i+1].qry(j+2, N),
-                hor[i-1].qry(1, j-2), hor[i-1].qry(j+2, N),
-                ver[j+1].qry(1, i-2), ver[j+1].qry(i+2, N),
-                ver[j-1].qry(1, i-2), ver[j-1].qry(i+2, N),
+                hor[i+1].qry(j-1, j, j+1),
+                hor[i-1].qry(j-1, j, j+1),
+                ver[j+1].qry(i-1, i, i+1),
+                ver[j-1].qry(i-1, i, i+1),
             });
             ans = max(ans, DP[i][j]);
         }
